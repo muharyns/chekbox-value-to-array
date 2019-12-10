@@ -1,0 +1,71 @@
+var allVals = [];
+    $("#chkall").click(function() {
+        if ($(this).is(':checked', true)) {
+            $(".chk").each(function() {
+                if ($(this).prop('disabled') == false) {
+                    $(this).prop('checked', true);
+                }
+
+            })
+        } else {
+            $('.chk').prop('checked', false);
+        }
+
+    })
+
+
+    $('.chk').on('change', function() {
+        var searchIDs = $(".chk:checked").map(function() {
+            return this.value;
+        }).toArray();
+        allVals = searchIDs;
+        
+    });
+
+
+    $("#categoryAction").click(function() {
+
+
+        var actOpt = $("#inlineFormCustomSelect option:selected").val();
+        var join_selected_values = allVals.join(",");
+
+        allVals = [];
+
+        if (actOpt == 'delete') {
+            $(".chk:checked").each(function() {
+                allVals.push($(this).val());
+
+            });
+
+            if (!join_selected_values) {
+                alert('Please select row');
+            } else {
+                if (confirm("Are you sure you want to delete this row?")) {
+                    var token = "{{csrf_token()}}"
+                    $.ajax({
+                        url: $(this).data('url'),
+                        type: 'POST',
+                        dataType: 'json',
+
+                        data: {
+                            id_category: join_selected_values,
+                            _token: token,
+
+                        },
+                        success: function(response) {
+                            document.location.reload(true);
+                           if(!response.status)
+                           {
+                               alert(response.message);
+                           }
+                        },
+                        error: function(response) {
+
+                        }
+                    })
+                }
+            }
+        } else {
+            alert('Select action first');
+        }
+    })
